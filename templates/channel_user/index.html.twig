@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}ChannelUser index{% endblock %}
+
+{% block body %}
+    <h1>ChannelUser index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>EntryDate</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for channel_user in channel_users %}
+            <tr>
+                <td>{{ channel_user.id }}</td>
+                <td>{{ channel_user.entryDate ? channel_user.entryDate|date('Y-m-d H:i:s') : '' }}</td>
+                <td>
+                    <a href="{{ path('app_channel_user_show', {'id': channel_user.id}) }}">show</a>
+                    <a href="{{ path('app_channel_user_edit', {'id': channel_user.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="3">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_channel_user_new') }}">Create new</a>
+{% endblock %}

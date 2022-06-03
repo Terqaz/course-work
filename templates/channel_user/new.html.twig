@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New ChannelUser{% endblock %}
+
+{% block body %}
+    <h1>Create new ChannelUser</h1>
+
+    {{ include('channel_user/_form.html.twig') }}
+
+    <a href="{{ path('app_channel_user_index') }}">back to list</a>
+{% endblock %}

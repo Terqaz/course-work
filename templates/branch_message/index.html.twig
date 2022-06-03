@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}BranchMessage index{% endblock %}
+
+{% block body %}
+    <h1>BranchMessage index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for branch_message in branch_messages %}
+            <tr>
+                <td>{{ branch_message.id }}</td>
+                <td>
+                    <a href="{{ path('app_branch_message_show', {'id': branch_message.id}) }}">show</a>
+                    <a href="{{ path('app_branch_message_edit', {'id': branch_message.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="2">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_branch_message_new') }}">Create new</a>
+{% endblock %}
