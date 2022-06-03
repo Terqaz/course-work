@@ -16,7 +16,7 @@ class BranchMessageController extends AbstractController
     #[Route('/', name: 'app_branch_message_index', methods: ['GET'])]
     public function index(BranchMessageRepository $branchMessageRepository): Response
     {
-        return $this->render('branch_message/index.html.twig', [
+        return $this->render('branch_message/show.html.twig', [
             'branch_messages' => $branchMessageRepository->findAll(),
         ]);
     }

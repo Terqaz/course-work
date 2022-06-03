@@ -5,8 +5,6 @@ namespace App\Controller;
 use App\Entity\Message;
 use App\Entity\User;
 use App\Form\MessageType;
-use App\Repository\ChannelUserRepository;
-use App\Repository\DialogMessageRepository;
 use App\Repository\MessageRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -37,7 +35,7 @@ class MessageController extends AbstractController
         $dialogMessages = $messageRepository->findDialogMessagesByUserId($user->getId());
         $channel = $messageRepository->findDialogMessagesByUserId($user->getId());
 
-        return $this->render('message/index.html.twig', [
+        return $this->render('message/show.html.twig', [
             'messages' => $messageRepository->findAll(),
         ]);
     }

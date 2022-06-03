@@ -39,6 +39,34 @@ class DialogMessageRepository extends ServiceEntityRepository
         }
     }
 
+    public function getNewMessagesCount(int $userId): array|float|int|string
+    {
+        return $this->getEntityManager()->createQuery("
+            SELECT s.id AS userId, CONCAT(s.lastName, ' ', s.firstName) AS userName, COUNT(dm.message) AS messagesCount
+            FROM App\Entity\DialogMessage AS dm
+                JOIN dm.sender s
+                JOIN dm.receiver r
+            WHERE r.id = :userId 
+            GROUP BY userId
+            ")
+            ->setParameter('userId', $userId)
+            ->getArrayResult(); // AND dm.isRead = FALSE //TODO
+    }
+
+    public function getLastMessageInfo(int $userId): array|float|int|string
+    {
+        return $this->getEntityManager()->createQuery("
+            SELECT s.id AS userId, m.text, MAX(m.creationDate)
+            FROM App\Entity\DialogMessage AS dm
+                JOIN dm.sender s
+                JOIN dm.receiver r
+                JOIN dm.message m
+            WHERE r.id = :userId
+            ")
+            ->setParameter('userId', $userId)
+            ->getArrayResult(); // AND dm.isRead = FALSE //TODO
+    }
+
 //    /**
 //     * @return DialogMessage[] Returns an array of DialogMessage objects
 //     */
@@ -63,4 +91,6 @@ class DialogMessageRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
+
 }

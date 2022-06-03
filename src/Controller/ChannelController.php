@@ -16,7 +16,7 @@ class ChannelController extends AbstractController
     #[Route('/', name: 'app_channel_index', methods: ['GET'])]
     public function index(ChannelRepository $channelRepository): Response
     {
-        return $this->render('channel/index.html.twig', [
+        return $this->render('channel/show.html.twig', [
             'channels' => $channelRepository->findAll(),
         ]);
     }

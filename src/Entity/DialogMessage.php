@@ -13,7 +13,7 @@ class DialogMessage
     #[ORM\Column(type: 'integer')]
     private $id;
 
-    #[ORM\OneToOne(targetEntity: Message::class, cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(targetEntity: Message::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[ORM\JoinColumn(nullable: false)]
     private $message;
 
@@ -21,12 +21,12 @@ class DialogMessage
     #[ORM\JoinColumn(nullable: false)]
     private $sender;
 
-    #[ORM\OneToOne(targetEntity: User::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'dialogMessages')]
     #[ORM\JoinColumn(nullable: false)]
     private $receiver;
 
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
-    private $isRead;
+    private $isRead = false;
 
     public function getId(): ?int
     {

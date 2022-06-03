@@ -16,7 +16,7 @@ class BranchController extends AbstractController
     #[Route('/', name: 'app_branch_index', methods: ['GET'])]
     public function index(BranchRepository $branchRepository): Response
     {
-        return $this->render('branch/index.html.twig', [
+        return $this->render('branch/show.html.twig', [
             'branches' => $branchRepository->findAll(),
         ]);
     }

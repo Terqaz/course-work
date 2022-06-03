@@ -3,7 +3,6 @@
 namespace App\Repository;
 
 use App\Entity\Channel;
-use App\Entity\ChannelUser;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -44,36 +43,67 @@ class ChannelRepository extends ServiceEntityRepository
      * @param int|null $userId
      * @return float|int|mixed[]|string
      */
-    public function getNewMessagesInfo(?int $userId): array|float|int|string
+    public function getNewMessagesCount(?int $userId): array|float|int|string
     {
-        // 'SELECT a FROM CmsArticle a JOIN a.user u ORDER BY u.name ASC'
-//        return $this->getEntityManager()->createQuery("
-//            SELECT c.name
-//            FROM App\Entity\ChannelUser AS cu
-//                JOIN cu.branchChannelUsers bcu
-//                JOIN cu.channel c
-//                JOIN bcu.branch b
-//                JOIN b.branchMessages bm
-//                JOIN bm.message m
-//            WHERE cu.userData = :userId AND bm.message > bcu.lastSeenDate
-//            ")
-//            ->setParameter('userId', $userId)
-//            ->getArrayResult();
-
         return $this->getEntityManager()->createQuery("
-            SELECT u.firstName, c.name AS channel_name, b.name AS branch_name, m.text, m.creationDate
+            SELECT c.id AS channelId, c.name AS channelName, COUNT(bm.message) AS messagesCount
             FROM App\Entity\ChannelUser AS cu
-                JOIN cu.branchChannelUsers bcu
-                JOIN cu.channel c
-                JOIN bcu.branch b
-                JOIN b.branchMessages bm
-                JOIN bm.message m
-                JOIN bm.sender s
-                JOIN s.userData u
+                INNER JOIN cu.branchChannelUsers bcu
+                INNER JOIN cu.channel c
+                INNER JOIN bcu.branch b
+                INNER JOIN b.branchMessages bm
+                INNER JOIN bm.message m
             WHERE cu.userData = :userId
+            GROUP BY channelId
             ")
             ->setParameter('userId', $userId)
-            ->getArrayResult();
+            ->getArrayResult(); // AND bm.message > bcu.lastSeenDate
+    }
+
+    /** Получить
+     * @param int $userId
+     * @return float|int|mixed[]|string
+     */
+    public function getNewMessagesInfo(int $userId): array|float|int|string
+    {
+        $S1 = $this->getEntityManager()->createQuery("
+            SELECT c.id AS channelId, c.name AS channelName, COUNT(bm.message) AS messagesCount
+            FROM App\Entity\ChannelUser AS cu
+                INNER JOIN cu.branchChannelUsers bcu
+                INNER JOIN cu.channel c
+                INNER JOIN bcu.branch b
+                INNER JOIN b.branchMessages bm
+            WHERE cu.userData = :userId 
+            GROUP BY channelId
+            ")
+            ->setParameter('userId', $userId)
+            ->getArrayResult(); // AND bm.message > bcu.lastSeenDate
+
+        $S2 = $this->getEntityManager()->createQuery("
+            SELECT c1.id AS channelId, m1.creationDate
+            FROM App\Entity\ChannelUser AS cu1
+                INNER JOIN cu1.branchChannelUsers bcu1
+                INNER JOIN cu1.channel c1
+                INNER JOIN bcu1.branch b1
+                INNER JOIN b1.branchMessages bm1
+                INNER JOIN bm1.message m1
+            WHERE cu1.userData = :userId 
+                AND m1.creationDate = (
+                    SELECT MAX(m2.creationDate)
+                    FROM App\Entity\ChannelUser AS cu2
+                        INNER JOIN cu2.branchChannelUsers bcu2
+                        INNER JOIN cu2.channel c2
+                        INNER JOIN bcu2.branch b2
+                        INNER JOIN b2.branchMessages bm2
+                        INNER JOIN bm2.message m2
+                    WHERE cu2.userData = :userId AND c2.id = c1.id
+                    GROUP BY c2.id
+                )
+            ")
+            ->setParameter('userId', $userId)
+            ->getArrayResult(); // AND bm.message > bcu.lastSeenDate
+
+        dd([$S1, $S2]);
     }
 
 //    /**

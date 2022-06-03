@@ -7,6 +7,7 @@ use App\Entity\BranchChannelUser;
 use App\Entity\BranchMessage;
 use App\Entity\Channel;
 use App\Entity\ChannelUser;
+use App\Entity\DialogMessage;
 use App\Entity\Message;
 use App\Entity\Tag;
 use App\Entity\User;
@@ -48,6 +49,31 @@ class AppFixtures extends Fixture
     {
         $users = $this->createUsers($manager);
 
+        // Некоторым сообщениям потом назначим пользовательские тэги
+        // Это и личные и групповые сообщения в ветке
+        $messages = [];
+
+        foreach (self::DIALOG_MESSAGES as $messageData) {
+            $message = $this->createMessage($messageData['text']);
+            $manager->persist($message);
+            $messages[] = $message;
+
+            $dialogMessage = $this->createDialogMessage(
+                $users[$messageData['sender']],
+                $users[$messageData['receiver']],
+                $message);
+            $manager->persist($dialogMessage);
+        }
+
+        // Some spam
+        for ($i = 1; $i <= 50; $i++) {
+            $message = $this->createMessage( str_repeat('адоыпрриапдывылоридп', 50));
+            $manager->persist($message);
+
+            $dialogMessage = $this->createDialogMessage($users[10], $users[0], $message);
+            $manager->persist($dialogMessage);
+        }
+
         $channels = [];
         foreach (self::CHANNELS_DATA as $channelData) {
             // Создать пользователей канала. Первый будет создателем
@@ -84,8 +110,6 @@ class AppFixtures extends Fixture
                     $branch->addBranchChannelUser($branchChannelUser);
                 }
 
-                // Некоторым сообщениям потом назначим пользовательские тэги
-                $messages = [];
                 // Добавляем сообщения с тэгами в ветку
                 foreach ($branchData['messages'] as $messageData) {
 
@@ -239,7 +263,7 @@ class AppFixtures extends Fixture
 
     /**
      * @param string $text
-     * @param array $tag
+     * @param array $tags
      * @return Message
      * @throws Exception
      */
@@ -343,6 +367,39 @@ class AppFixtures extends Fixture
     ];
 
     private const USER_TAGS = ['Важное', 'Не забыть', 'Интересное'];
+
+    private const DIALOG_MESSAGES = [
+        // Users 0 and 1
+        [ 'sender' => 0, 'receiver' => 1, 'text' => 'Привет)' ],
+        [ 'sender' => 1, 'receiver' => 0, 'text' => 'Привет!' ],
+        [ 'sender' => 0, 'receiver' => 1, 'text' => 'Как дела?' ],
+        [ 'sender' => 1, 'receiver' => 0, 'text' => 'Все в порядке' ],
+        [ 'sender' => 1, 'receiver' => 0, 'text' => 'Кстати, ты не забыл позвонить брату?' ],
+        [ 'sender' => 0, 'receiver' => 1, 'text' => 'Не забыл' ],
+
+        // Users 0 and 2
+        [ 'sender' => 0, 'receiver' => 2, 'text' => 'Привет!' ],
+        [ 'sender' => 0, 'receiver' => 2, 'text' => 'Почему молчишь' ],
+        [ 'sender' => 0, 'receiver' => 2, 'text' => 'Ответь' ],
+        [ 'sender' => 0, 'receiver' => 2, 'text' => 'Ответь' ],
+        [ 'sender' => 0, 'receiver' => 2, 'text' => 'Ответь' ],
+        [ 'sender' => 0, 'receiver' => 2, 'text' => 'Ответь' ],
+
+        // Users 1 and 2
+        [ 'sender' => 1, 'receiver' => 2, 'text' => 'Не отвечай ему' ],
+        [ 'sender' => 2, 'receiver' => 1, 'text' => 'Почему?' ],
+        [ 'sender' => 1, 'receiver' => 2, 'text' => 'Не важно, просто не отвечай)' ],
+
+        [ 'sender' => 3, 'receiver' => 0, 'text' => 'Привет, я твой подписчик, поставь лайк на аву, пожалуйста)' ],
+        [ 'sender' => 4, 'receiver' => 0, 'text' => 'Привет, когда будет новое видео?' ],
+        [ 'sender' => 5, 'receiver' => 0, 'text' => 'где видео?' ],
+        [ 'sender' => 6, 'receiver' => 0, 'text' => 'какую игру дальше будешь записывать?' ],
+        [ 'sender' => 7, 'receiver' => 0, 'text' => 'Привет, как дела? У тебя хорошо получается снимать видео. Поможешь мне начать тоже снимать?' ],
+        [ 'sender' => 8, 'receiver' => 0, 'text' => 'Почему не выпускаешь новые видео?' ],
+        [ 'sender' => 9, 'receiver' => 0, 'text' => 'У тебя все в порядке? Если нужна помощь, скинь номер телефона, переведу денег' ],
+
+        // User 10 - spammer
+    ];
 
     private const CHANNELS_DATA = [
         [
@@ -448,4 +505,20 @@ class AppFixtures extends Fixture
             'branches' => []
         ],
     ];
+
+    /**
+     * @param User $sender
+     * @param User $receiver
+     * @param Message $message
+     * @return DialogMessage
+     */
+    public function createDialogMessage(User $sender, User $receiver, Message $message): DialogMessage
+    {
+        $dialogMessage = new DialogMessage();
+        $dialogMessage
+            ->setSender($sender)
+            ->setReceiver($receiver)
+            ->setMessage($message);
+        return $dialogMessage;
+    }
 }

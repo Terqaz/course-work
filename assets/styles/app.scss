@@ -1,2 +1,14 @@
-
 @import "~bootstrap/scss/bootstrap";
+
+.navigation-bar {
+  max-width: 30%;
+}
+
+.main {
+  width: 80%;
+  height: 100%;
+}
+
+.main__list {
+  height: auto;
+}

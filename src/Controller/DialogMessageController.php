@@ -16,7 +16,7 @@ class DialogMessageController extends AbstractController
     #[Route('/', name: 'app_dialog_message_index', methods: ['GET'])]
     public function index(DialogMessageRepository $dialogMessageRepository): Response
     {
-        return $this->render('dialog_message/index.html.twig', [
+        return $this->render('dialog_message/show.html.twig', [
             'dialog_messages' => $dialogMessageRepository->findAll(),
         ]);
     }
