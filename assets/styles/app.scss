@@ -1,14 +1,26 @@
 @import "~bootstrap/scss/bootstrap";
 
+.content {
+  max-height: 80vh;
+}
+
 .navigation-bar {
   max-width: 30%;
 }
 
 .main {
   width: 80%;
-  height: 100%;
 }
 
 .main__list {
-  height: auto;
+  height: 100%;
+  overflow: auto;
+}
+
+.message__text {
+  word-wrap: anywhere;
+}
+
+.navigation-bar__list {
+
 }

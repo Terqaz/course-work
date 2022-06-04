@@ -5,11 +5,13 @@ namespace App\Controller;
 use App\Entity\Channel;
 use App\Form\ChannelType;
 use App\Repository\ChannelRepository;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+#[IsGranted('ROLE_USER')]
 #[Route('/channels')]
 class ChannelController extends AbstractController
 {
@@ -46,6 +48,12 @@ class ChannelController extends AbstractController
         return $this->render('channel/show.html.twig', [
             'channel' => $channel,
         ]);
+    }
+
+    #[Route('/{id}/branches', name: 'app_channel_branches', methods: ['GET'])]
+    public function getBranches(Channel $channel): Response
+    {
+        //TODO
     }
 
     #[Route('/{id}/edit', name: 'app_channel_edit', methods: ['GET', 'POST'])]

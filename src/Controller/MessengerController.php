@@ -50,8 +50,11 @@ class MessengerController extends AbstractController
             $messageProvider = (new MessageProvider())
                 ->setType('channel')
                 ->setId($item['channelId'])
-                ->setName($item['channelName'])
-                ->setNewMessagesCount($item['messagesCount']);
+                ->setName($item['channelName']);
+            if (isset($item['messagesCount'])) {
+                $messageProvider->setNewMessagesCount($item['messagesCount']);
+            }
+
             $messageProviders[] = $messageProvider;
         }
         $messagesCount = $dialogMessageRepository->getNewMessagesCount($user->getId());

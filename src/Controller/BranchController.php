@@ -5,11 +5,13 @@ namespace App\Controller;
 use App\Entity\Branch;
 use App\Form\BranchType;
 use App\Repository\BranchRepository;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+#[IsGranted('ROLE_USER')]
 #[Route('/branches')]
 class BranchController extends AbstractController
 {
@@ -46,6 +48,12 @@ class BranchController extends AbstractController
         return $this->render('branch/show.html.twig', [
             'branch' => $branch,
         ]);
+    }
+
+    #[Route('/{id}/messages', name: 'app_branch_messages', methods: ['GET'])]
+    public function getMessages(Branch $branch): Response
+    {
+        //TODO
     }
 
     #[Route('/{id}/edit', name: 'app_branch_edit', methods: ['GET', 'POST'])]

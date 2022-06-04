@@ -1,22 +1,23 @@
-{% extends 'base.html.twig' %}
+<ol class="list-group">
+    {% for message in dialog_messages %}
+        {% if not message['isRead'] and app.user.id is not same as(message['senderId']) %}
+            {% set colorClass = 'list-group-item-dark' %}
+        {% else %}
+            {% set colorClass = '' %}
+        {% endif %}
 
-{% block title %}DialogMessage{% endblock %}
+        {% if app.user.id is same as(message['senderId']) %}
+            {% set userName = 'Вы' %}
+        {% else %}
+            {% set userName = message['otherUserName'] %}
+        {% endif %}
 
-{% block body %}
-    <h1>DialogMessage</h1>
-
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ dialog_message.id }}</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <a href="{{ path('app_dialog_message_index') }}">back to list</a>
-
-    <a href="{{ path('app_dialog_message_edit', {'id': dialog_message.id}) }}">edit</a>
-
-    {{ include('dialog_message/_delete_form.html.twig') }}
-{% endblock %}
+        <li class="message list-group-item {{ colorClass }}" >
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="fw-bold">{{ userName }}</div>
+                <span class="badge bg-info rounded-pill">{{ message['creationDate']|date('H:i:s d.m.Y') }}</span>
+            </div>
+            <p class="message__text">{{ message['text'] }}</p>
+        </li>
+    {% endfor %}
+</ol>

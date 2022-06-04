@@ -53,7 +53,7 @@ class MessageController extends AbstractController
             return $this->redirectToRoute('app_message_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->renderForm('message/new.html.twig', [
+        return $this->renderForm('message/_form.html.twig', [
             'message' => $message,
             'form' => $form,
         ]);

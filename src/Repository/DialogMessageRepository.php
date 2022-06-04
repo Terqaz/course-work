@@ -67,30 +67,27 @@ class DialogMessageRepository extends ServiceEntityRepository
             ->getArrayResult(); // AND dm.isRead = FALSE //TODO
     }
 
-//    /**
-//     * @return DialogMessage[] Returns an array of DialogMessage objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('d')
-//            ->andWhere('d.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('d.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?DialogMessage
-//    {
-//        return $this->createQueryBuilder('d')
-//            ->andWhere('d.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    public function findByUserIds(int $receiverId, int $otherUserId): string|int|float|array
+    {
+        return $this->getEntityManager()->createQuery("
+            SELECT s.id AS senderId,
+                    CONCAT(s.lastName, ' ', s.firstName) AS otherUserName, 
+                    m.text AS text, 
+                    m.creationDate AS creationDate, 
+                    dm.isRead AS isRead
+            FROM App\Entity\DialogMessage AS dm
+                JOIN dm.sender s
+                JOIN dm.receiver r
+                JOIN dm.message m
+            WHERE r.id IN (:receiverId, :senderId) AND s.id IN (:receiverId, :senderId)
+            ORDER BY m.creationDate ASC
+            ")
+            ->setParameters([
+                'receiverId' => $receiverId,
+                'senderId' => $otherUserId,
+            ])
+            ->getArrayResult();
+    }
 
 
 }
