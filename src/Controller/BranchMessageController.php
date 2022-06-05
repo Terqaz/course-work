@@ -3,18 +3,31 @@
 namespace App\Controller;
 
 use App\Entity\BranchMessage;
+use App\Entity\Message;
+use App\Entity\User;
 use App\Form\BranchMessageType;
 use App\Repository\BranchMessageRepository;
+use App\Repository\BranchRepository;
+use App\Repository\ChannelUserRepository;
+use DateTime;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Security;
 
 #[IsGranted('ROLE_USER')]
 #[Route('/branch/messages')]
 class BranchMessageController extends AbstractController
 {
+    private Security $security;
+
+    public function __construct(Security $security)
+    {
+        $this->security = $security;
+    }
+
     #[Route('/', name: 'app_branch_message_index', methods: ['GET'])]
     public function index(BranchMessageRepository $branchMessageRepository): Response
     {
@@ -24,19 +37,50 @@ class BranchMessageController extends AbstractController
     }
 
     #[Route('/new', name: 'app_branch_message_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, BranchMessageRepository $branchMessageRepository): Response
+    public function new(Request                 $request,
+                        BranchMessageRepository $branchMessageRepository,
+                        BranchRepository        $branchRepository,
+                        ChannelUserRepository   $channelUserRepository)
+    : Response
     {
+        /** @var User $user */
+        $user = $this->security->getUser();
+
+        $branchId = (int)$request->query->get('branch-id');
+        $branch = $branchRepository->find($branchId);
+
+        $channelUser = $channelUserRepository->findByUserAndBranch($user->getId(), $branchId)[0];
+
         $branchMessage = new BranchMessage();
-        $form = $this->createForm(BranchMessageType::class, $branchMessage);
+        $branchMessage
+            ->setSender($channelUser)
+            ->setBranch($branch);
+
+        $form = $this->createForm(BranchMessageType::class, $branchMessage, [
+            'action' => $this->generateUrl('app_branch_message_new'),
+            'branch-id' => $branchId,
+            'channel-user-id' => $channelUser->getId()
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $message = (new Message())
+                ->setText($form->get('text')->getData())
+                ->setCreationDate(new DateTime());
+            $branch = $branchRepository->find((int) $form->get('branch-id'));
+            $channelUser = $channelUserRepository->find((int) $form->get('channel-user-id'));
+
+            $branchMessage
+                ->setSender($channelUser)
+                ->setBranch($branch)
+                ->setMessage($message);
+
             $branchMessageRepository->add($branchMessage, true);
 
-            return $this->redirectToRoute('app_branch_message_index', [], Response::HTTP_SEE_OTHER);
+            return new Response(status: 200);
         }
 
-        return $this->renderForm('branch_message/new.html.twig', [
+        return $this->renderForm('branch_message/_form.html.twig', [
             'branch_message' => $branchMessage,
             'form' => $form,
         ]);

@@ -24,8 +24,6 @@ class DialogMessageController extends AbstractController
 
     public function __construct(Security $security)
     {
-        // Avoid calling getUser() in the constructor: auth may not
-        // be complete yet. Instead, store the entire Security object.
         $this->security = $security;
     }
 
@@ -42,7 +40,6 @@ class DialogMessageController extends AbstractController
         } else {
             $dialogMessages = $dialogMessageRepository->findByUserIds($user->getId(), $otherUserId);
         }
-
         return $this->render('dialog_message/index.html.twig', [
             'dialog_messages' => $dialogMessages,
             'otherUserId' => $otherUserId,
@@ -69,12 +66,15 @@ class DialogMessageController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $otherUser = $userRepository->find((int) $form->get('other-user-id')->getData());
-
             $message = (new Message())
                 ->setText($form->get('text')->getData())
                 ->setCreationDate(new DateTime());
-            $dialogMessage->setMessage($message);
+            $otherUser = $userRepository->find((int) $form->get('other-user-id')->getData());
+
+            $dialogMessage
+                ->setReceiver($otherUser)
+                ->setMessage($message);
+
             $dialogMessageRepository->add($dialogMessage, true);
 
             return new Response(status: 200);

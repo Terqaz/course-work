@@ -71,7 +71,8 @@ class BranchController extends AbstractController
 
         return $this->render('branch_message/index.html.twig', [
             'messages' => $messages,
-            'lastSeenDate' => $lastSeenDate
+            'lastSeenDate' => $lastSeenDate,
+            'branchId' => $branch->getId()
         ]);
     }
 

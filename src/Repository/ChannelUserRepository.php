@@ -39,6 +39,21 @@ class ChannelUserRepository extends ServiceEntityRepository
         }
     }
 
+    public function findByUserAndBranch(int $userId, int $branchId): array|float|int|string
+    {
+        return $this->getEntityManager()->createQuery("
+            SELECT cu
+            FROM App\Entity\ChannelUser AS cu
+                INNER JOIN cu.userData u
+                INNER JOIN cu.branchChannelUsers bcu
+                INNER JOIN bcu.branch b
+            WHERE u.id = :userId AND b.id = :branchId
+            ")
+            ->setParameter('userId', $userId)
+            ->setParameter('branchId', $branchId)
+            ->getResult();
+    }
+
 //    /**
 //     * @return ChannelUser[] Returns an array of ChannelUser objects
 //     */

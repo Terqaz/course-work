@@ -1,4 +1,4 @@
-<ol class="list-group">
+<ol class="messages list-group mb-3">
     {% for message in messages %}
         {% if message['creationDate'] > lastSeenDate and app.user.id != message['userId']%}
             {% set colorClass = 'list-group-item-dark' %}
@@ -12,7 +12,7 @@
             {% set userName = message['userName'] %}
         {% endif %}
 
-        <li class="message list-group-item {{ colorClass }}" data-id="{{ message['messageId'] }}">
+        <li class="message list-group-item list-group-item-action {{ colorClass }}" data-id="{{ message['messageId'] }}">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="fw-bold">{{ userName }}</div>
                 <span class="badge bg-transparent text-dark ms-auto me-2">{{ message['creationDate']|date('H:i:s d.m.Y') }}</span>
@@ -31,3 +31,10 @@
         </li>
     {% endfor %}
 </ol>
+<div>
+    {{ render(controller(
+        'App\\Controller\\BranchMessageController::new',
+        {},
+        { 'branch-id': branchId }
+    )) }}
+</div>

@@ -54,7 +54,8 @@ class RegistrationFormType extends AbstractType
             ])
             ->add('birthDate', DateType::class, [
                 'label' => 'Дата рождения',
-                'required' => false
+                'required' => false,
+                'years' => range(1940, 2018)
             ])
             ->add('email', EmailType::class, [
                 'required' => true,

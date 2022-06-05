@@ -15,26 +15,9 @@ import './bootstrap';
 
 const messageProviders = {DIALOG: 'dialog', BRANCH: 'branch', CHANNEL: 'channel'};
 
-function loadMessages(url) {
-    $.get(
-        url,
-        function (data, status) {
-            let $mainContent = $('.main__content');
-            $mainContent.empty();
-            $mainContent.append(data);
-            let messages = $mainContent[0];
-            messages.scrollTop = messages.scrollHeight;
-        }
-    );
-}
-
-function getDialogMessageUrl(dataProviderId) {
-    return '/dialog/messages/?other-user-id=' + dataProviderId;
-}
-
 let dataProviderId;
-let dataProviderType;
 
+let dataProviderType;
 $('.message-provider').click(function (event) {
     dataProviderId = event.target.getAttribute('data-provider-id');
     dataProviderType = event.target.getAttribute('data-provider-type');
@@ -45,7 +28,7 @@ $('.message-provider').click(function (event) {
         url = getDialogMessageUrl(dataProviderId);
 
     } else if (dataProviderType === messageProviders.BRANCH) {
-        url = '/branches/' + dataProviderId + '/messages';
+        url = getBranchMessageUrl(dataProviderId);
 
     } else if (dataProviderType === messageProviders.CHANNEL) {
         url = '/channels/' + dataProviderId;
@@ -68,21 +51,69 @@ $('.message-provider').click(function (event) {
     return false;
 });
 
-// $(document).on('click', '.dialog-message-send-btn', function (event) {
-//     event.preventDefault();
-//     let $form = $(document.dialog_message);
-//
-//     $.ajax({
-//         url : $form.attr('action'),
-//         type: $form.attr('method'),
-//         data : {
-//             text: $('#dialog_message_text').value
-//         },
-//         complete: function(html) {
-//             loadMessages(getDialogMessageUrl(dataProviderId));
-//         }
-//     });
-// });
+$(document).on('submit', 'form[name=dialog_message], form[name=branch_message]', function (event) {
+    event.preventDefault();
+});
+
+$(document).on('click', '.dialog-message-send-btn', function (event) {
+    submitFormAndShowMessage(
+        $('form[name=dialog_message]'),
+        getDialogMessageUrl(dataProviderId)
+    );
+});
+
+$(document).on('click', '.branch-message-send-btn', function (event) {
+    submitFormAndShowMessage(
+        $('form[name=branch_message]'),
+        getBranchMessageUrl(dataProviderId)
+    );
+});
+
+function getDialogMessageUrl(dataProviderId) {
+    return '/dialog/messages/?other-user-id=' + dataProviderId;
+}
+
+function getBranchMessageUrl(dataProviderId) {
+    return '/branches/' + dataProviderId + '/messages';
+}
+
+function submitFormAndShowMessage($form, $url) {
+    $.ajax({
+        url: $form.attr('action'),
+        type: $form.attr('method'),
+        data: createResponseBody($form),
+        complete: function (html) {
+            loadMessages($url);
+        }
+    });
+}
+
+function createResponseBody($form) {
+    let data = {};
+    for (const field of $form[0].elements) {
+        if (field.name) {
+            data[field.name] = field.value;
+        }
+    }
+    return data;
+}
+
+function loadMessages(url) {
+    $.get(
+        url,
+        function (data, status) {
+            let $mainContent = $('.main__content');
+            $mainContent.empty();
+            $mainContent.append(data);
+            let messages = $mainContent[0];
+            messages.scrollTop = messages.scrollHeight;
+
+            const dropdownElementList = document.querySelectorAll('.dropdown-toggle')
+            const dropdownList = [...dropdownElementList].map(dropdownToggleEl => new bootstrap.Dropdown(dropdownToggleEl))
+
+        }
+    );
+}
 
 // $('.dropdown-toggle').click(function (event) {
 //     let $elements = $('#' + event.target.id);

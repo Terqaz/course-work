@@ -22,11 +22,14 @@ class DialogMessageType extends AbstractType
                 'constraints' => [
                     new Length(
                         max: 4096,
-                        maxMessage: 'Слишком дилнное сообщение. Максимум {{ limit }} символов'
+                        maxMessage: 'Слишком длинное сообщение. Максимум {{ limit }} символов'
                     )
                 ]
             ])
-            ->add('other-user-id', HiddenType::class)
+            ->add('other-user-id', HiddenType::class, [
+                'mapped' => false,
+                'data' => $options['other-user-id']
+            ])
         ;
     }
 
