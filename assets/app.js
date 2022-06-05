@@ -13,28 +13,82 @@ import $ from 'jquery';
 // start the Stimulus application
 import './bootstrap';
 
-$('.message-provider').click(function (event) {
-    let dataProviderId = event.target.getAttribute('data-provider-id');
-    let dataProviderType = event.target.getAttribute('data-provider-type');
-    let url = '';
-    if (dataProviderType === 'dialog') {
-        url = '/dialog/messages?other-user-id=' + dataProviderId;
-    } else if (dataProviderType === 'channel') {
-        url = '/channels/' + dataProviderId + '/branches';
-    } else if (dataProviderType === 'branch') {
-        url = '/branches/' + dataProviderId + '/messages';
-    }
-    $('.main__header__name').text(event.target.innerText.split('\n')[0]);
+const messageProviders = {DIALOG: 'dialog', BRANCH: 'branch', CHANNEL: 'channel'};
+
+function loadMessages(url) {
     $.get(
-        '/dialog/messages/?other-user-id=' + dataProviderId,
+        url,
         function (data, status) {
-            let $messages = $('.main__list');
-            $messages.empty();
-            $messages.append(data);
-            let messages = $messages[0];
+            let $mainContent = $('.main__content');
+            $mainContent.empty();
+            $mainContent.append(data);
+            let messages = $mainContent[0];
             messages.scrollTop = messages.scrollHeight;
         }
     );
+}
+
+function getDialogMessageUrl(dataProviderId) {
+    return '/dialog/messages/?other-user-id=' + dataProviderId;
+}
+
+let dataProviderId;
+let dataProviderType;
+
+$('.message-provider').click(function (event) {
+    dataProviderId = event.target.getAttribute('data-provider-id');
+    dataProviderType = event.target.getAttribute('data-provider-type');
+
+    let url = '';
+
+    if (dataProviderType === messageProviders.DIALOG) {
+        url = getDialogMessageUrl(dataProviderId);
+
+    } else if (dataProviderType === messageProviders.BRANCH) {
+        url = '/branches/' + dataProviderId + '/messages';
+
+    } else if (dataProviderType === messageProviders.CHANNEL) {
+        url = '/channels/' + dataProviderId;
+    }
+    $('.main__header__name').text(event.target.innerText.split('\n')[0]);
+    if (dataProviderType === messageProviders.DIALOG || dataProviderType === messageProviders.BRANCH) {
+        loadMessages(url);
+    } else if (dataProviderType === messageProviders.CHANNEL) {
+        $.get(
+            url,
+            function (data, status) {
+                let $mainContent = $('.main__content');
+                $mainContent.empty();
+                $mainContent.append(data);
+            }
+        )
+    }
+
 }).children().click(function(e) {
     return false;
 });
+
+// $(document).on('click', '.dialog-message-send-btn', function (event) {
+//     event.preventDefault();
+//     let $form = $(document.dialog_message);
+//
+//     $.ajax({
+//         url : $form.attr('action'),
+//         type: $form.attr('method'),
+//         data : {
+//             text: $('#dialog_message_text').value
+//         },
+//         complete: function(html) {
+//             loadMessages(getDialogMessageUrl(dataProviderId));
+//         }
+//     });
+// });
+
+// $('.dropdown-toggle').click(function (event) {
+//     let $elements = $('#' + event.target.id);
+//
+//     switch ($elements.css('display')) {
+//         case 'none': $elements.css('display', 'block'); break;
+//         case 'block': $elements.css('display', 'none'); break;
+//     }
+// });

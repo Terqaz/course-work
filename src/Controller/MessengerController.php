@@ -22,8 +22,6 @@ class MessengerController extends AbstractController
 
     public function __construct(Security $security)
     {
-        // Avoid calling getUser() in the constructor: auth may not
-        // be complete yet. Instead, store the entire Security object.
         $this->security = $security;
     }
 
@@ -34,42 +32,56 @@ class MessengerController extends AbstractController
                                         DialogMessageRepository $dialogMessageRepository
     ): Response
     {
-//        if ($request->query->has('channel_id')) {
-////            $branchRepository-> //TODO
-////            return
-//        }
-
         /** @var User $user */
         $user = $this->security->getUser();
 
-        $messageProviders = [];
+        $userChannels = $channelRepository->getUserChannels($user->getId());
+        $messagesCount = $channelRepository->getNewMessagesInfo($user->getId());
 
-//        $channelRepository->getNewMessagesInfo($user->getId());
-        $messagesCount = $channelRepository->getNewMessagesCount($user->getId());
-        foreach ($messagesCount as $item) {
+        $messageProviders = [];
+        foreach ($userChannels as $item) {
             $messageProvider = (new MessageProvider())
                 ->setType('channel')
                 ->setId($item['channelId'])
                 ->setName($item['channelName']);
-            if (isset($item['messagesCount'])) {
-                $messageProvider->setNewMessagesCount($item['messagesCount']);
+            if (isset($messagesCount['channelId'])) {
+                $messageProvider->setNewMessagesCount($messagesCount['channelId']);
             }
+
+            $branchesData = $branchRepository->getUserBranches($user->getId(), $item['channelId']);
+
+            $branches = [];
+            foreach ($branchesData as $branchData) {
+                $branch = (new MessageProvider())
+                    ->setType('branch')
+                    ->setId($branchData['branchId'])
+                    ->setName($branchData['branchName']);
+//            if (isset($item['messagesCount'])) {
+//                $messageProvider->setNewMessagesCount($item['messagesCount']);
+//            }
+
+                $branches[] = $branch;
+            }
+            $messageProvider->setBranches($branches);
 
             $messageProviders[] = $messageProvider;
         }
-        $messagesCount = $dialogMessageRepository->getNewMessagesCount($user->getId());
-//        $lastMessage = $dialogMessageRepository->getLastMessageInfo($user->getId());
-        foreach ($messagesCount as $item) {
+        $userDialogs = $dialogMessageRepository->getUserDialogs($user->getId());
+        $messagesCount = $dialogMessageRepository->getNewMessagesInfo($user->getId());
+        foreach ($userDialogs as $item) {
             $messageProvider = (new MessageProvider())
                 ->setType('dialog')
                 ->setId($item['userId'])
-                ->setName($item['userName'])
-                ->setNewMessagesCount($item['messagesCount']);
+                ->setName($item['userName']);
+            if (isset($messagesCount['userId'])) {
+                $messageProvider->setNewMessagesCount($messagesCount['userId']);
+            }
             $messageProviders[] = $messageProvider;
         }
 
         return $this->render('messenger/show.html.twig', [
             'messageProviders' => $messageProviders,
+
         ]);
     }
 }

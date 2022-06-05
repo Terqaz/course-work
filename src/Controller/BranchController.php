@@ -3,22 +3,32 @@
 namespace App\Controller;
 
 use App\Entity\Branch;
+use App\Entity\User;
 use App\Form\BranchType;
+use App\Repository\BranchMessageRepository;
 use App\Repository\BranchRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Security;
 
 #[IsGranted('ROLE_USER')]
 #[Route('/branches')]
 class BranchController extends AbstractController
 {
+    private Security $security;
+
+    public function __construct(Security $security)
+    {
+        $this->security = $security;
+    }
+
     #[Route('/', name: 'app_branch_index', methods: ['GET'])]
     public function index(BranchRepository $branchRepository): Response
     {
-        return $this->render('branch/show.html.twig', [
+        return $this->render('branch/index.html.twig', [
             'branches' => $branchRepository->findAll(),
         ]);
     }
@@ -51,9 +61,18 @@ class BranchController extends AbstractController
     }
 
     #[Route('/{id}/messages', name: 'app_branch_messages', methods: ['GET'])]
-    public function getMessages(Branch $branch): Response
+    public function getMessages(Branch $branch, BranchMessageRepository $branchMessageRepository): Response
     {
-        //TODO
+        /** @var User $user */
+        $user = $this->security->getUser();
+
+        $messages = $branchMessageRepository->getMessages($user->getId(), $branch->getId());
+        $lastSeenDate = $branchMessageRepository->getBranchLastSeenDate($user->getId(), $branch->getId())[0];
+
+        return $this->render('branch_message/index.html.twig', [
+            'messages' => $messages,
+            'lastSeenDate' => $lastSeenDate
+        ]);
     }
 
     #[Route('/{id}/edit', name: 'app_branch_edit', methods: ['GET', 'POST'])]

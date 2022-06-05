@@ -31,7 +31,7 @@ class RegistrationFormType extends AbstractType
                 'help' => 'До 40 букв',
                 'constraints' => [
                     new Length(max: 40, maxMessage: self::INPUT_CORRECT_VALUE),
-                    new Regex('/^[А-ЯЁ][а-яё]+(-[А-ЯЁ])?[а-яё]+$/', self::INPUT_CORRECT_VALUE)
+                    new Regex('/^[А-ЯЁ][а-яё]+(-[А-ЯЁ])?[а-яё]+$/u', self::INPUT_CORRECT_VALUE)
                 ],
             ])
             ->add('firstName', TextType::class, [
@@ -89,7 +89,7 @@ class RegistrationFormType extends AbstractType
                     ]),
                     new Length([
                         'min' => 6,
-                        'minMessage' => 'Ващ пароль должен состоять минимум из {{ limit }} симоволов',
+                        'minMessage' => 'Ваш пароль должен состоять минимум из {{ limit }} симоволов',
                         // max length allowed by Symfony for security reasons
                         'max' => 4096,
                     ]),

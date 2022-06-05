@@ -3,9 +3,12 @@
 namespace App\Controller;
 
 use App\Entity\DialogMessage;
+use App\Entity\Message;
 use App\Entity\User;
 use App\Form\DialogMessageType;
 use App\Repository\DialogMessageRepository;
+use App\Repository\UserRepository;
+use DateTime;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,33 +35,52 @@ class DialogMessageController extends AbstractController
         /** @var User $user */
         $user = $this->security->getUser();
 
-        $otherUserId = $request->query->get('other-user-id');
+        $otherUserId = (int) $request->query->get('other-user-id');
 
-        if ($otherUserId === null) {
+        if ($otherUserId === 0) {
             $dialogMessages = [];
         } else {
-            $dialogMessages = $dialogMessageRepository->findByUserIds($user->getId(), (int) $otherUserId);
+            $dialogMessages = $dialogMessageRepository->findByUserIds($user->getId(), $otherUserId);
         }
 
-        return $this->render('dialog_message/show.html.twig', [
+        return $this->render('dialog_message/index.html.twig', [
             'dialog_messages' => $dialogMessages,
+            'otherUserId' => $otherUserId,
         ]);
     }
 
     #[Route('/new', name: 'app_dialog_message_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, DialogMessageRepository $dialogMessageRepository): Response
+    public function new(Request $request, DialogMessageRepository $dialogMessageRepository, UserRepository $userRepository): Response
     {
+        /** @var User $user */
+        $user = $this->security->getUser();
+        $otherUserId = (int)$request->query->get('other-user-id');
+        $otherUser = $userRepository->find($otherUserId);
+
         $dialogMessage = new DialogMessage();
-        $form = $this->createForm(DialogMessageType::class, $dialogMessage);
+        $dialogMessage
+            ->setSender($user)
+            ->setReceiver($otherUser);
+
+        $form = $this->createForm(DialogMessageType::class, $dialogMessage, [
+            'action' => $this->generateUrl('app_dialog_message_new'),
+            'other-user-id' => $otherUserId
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $otherUser = $userRepository->find((int) $form->get('other-user-id')->getData());
+
+            $message = (new Message())
+                ->setText($form->get('text')->getData())
+                ->setCreationDate(new DateTime());
+            $dialogMessage->setMessage($message);
             $dialogMessageRepository->add($dialogMessage, true);
 
-            return $this->redirectToRoute('app_dialog_message_index', [], Response::HTTP_SEE_OTHER);
+            return new Response(status: 200);
         }
 
-        return $this->renderForm('dialog_message/new.html.twig', [
+        return $this->renderForm('dialog_message/_form.html.twig', [
             'dialog_message' => $dialogMessage,
             'form' => $form,
         ]);

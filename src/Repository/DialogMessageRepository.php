@@ -39,10 +39,30 @@ class DialogMessageRepository extends ServiceEntityRepository
         }
     }
 
-    public function getNewMessagesCount(int $userId): array|float|int|string
+    public function getNewMessagesInfo(int $userId): array|float|int|string
+    {
+        $messagesCount =  $this->getEntityManager()->createQuery("
+            SELECT s.id AS userId, COUNT(dm.message) AS messagesCount
+            FROM App\Entity\DialogMessage AS dm
+                JOIN dm.sender s
+                JOIN dm.receiver r
+            WHERE r.id = :userId AND dm.isRead = 0
+            GROUP BY userId
+            ")
+            ->setParameter('userId', $userId)
+            ->getArrayResult();
+
+        $messagesCountByUserId = [];
+        foreach ($messagesCount as $item) {
+            $messagesCountByUserId[$item['userId']] = $item['messagesCount'];
+        }
+        return $messagesCountByUserId;
+    }
+
+    public function getUserDialogs(int $userId): array|float|int|string
     {
         return $this->getEntityManager()->createQuery("
-            SELECT s.id AS userId, CONCAT(s.lastName, ' ', s.firstName) AS userName, COUNT(dm.message) AS messagesCount
+            SELECT s.id AS userId, CONCAT(s.lastName, ' ', s.firstName) AS userName
             FROM App\Entity\DialogMessage AS dm
                 JOIN dm.sender s
                 JOIN dm.receiver r
@@ -50,27 +70,14 @@ class DialogMessageRepository extends ServiceEntityRepository
             GROUP BY userId
             ")
             ->setParameter('userId', $userId)
-            ->getArrayResult(); // AND dm.isRead = FALSE //TODO
-    }
-
-    public function getLastMessageInfo(int $userId): array|float|int|string
-    {
-        return $this->getEntityManager()->createQuery("
-            SELECT s.id AS userId, m.text, MAX(m.creationDate)
-            FROM App\Entity\DialogMessage AS dm
-                JOIN dm.sender s
-                JOIN dm.receiver r
-                JOIN dm.message m
-            WHERE r.id = :userId
-            ")
-            ->setParameter('userId', $userId)
-            ->getArrayResult(); // AND dm.isRead = FALSE //TODO
+            ->getArrayResult();
     }
 
     public function findByUserIds(int $receiverId, int $otherUserId): string|int|float|array
     {
         return $this->getEntityManager()->createQuery("
-            SELECT s.id AS senderId,
+            SELECT m.id AS messageId,
+                    s.id AS senderId,
                     CONCAT(s.lastName, ' ', s.firstName) AS otherUserName, 
                     m.text AS text, 
                     m.creationDate AS creationDate, 

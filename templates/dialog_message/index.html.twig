@@ -1,5 +1,38 @@
-{% for message in messages %}
+<ol class="messages list-group mb-3">
+    {% for message in dialog_messages %}
+        {% if not message['isRead'] and app.user.id is not same as(message['senderId']) %}
+            {% set colorClass = 'list-group-item-dark' %}
+        {% else %}
+            {% set colorClass = '' %}
+        {% endif %}
 
-{% else %}
-    <h3>Нет сообщений в данном диалоге!</h3>
-{% endfor %}
+        {% if app.user.id is same as(message['senderId']) %}
+            {% set userName = 'Вы' %}
+        {% else %}
+            {% set userName = message['otherUserName'] %}
+        {% endif %}
+
+        <li class="message list-group-item {{ colorClass }}" data-id="{{ message['messageId'] }}">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="fw-bold">{{ userName }}</div>
+                <span class="badge bg-transparent text-dark ms-auto me-2">{{ message['creationDate']|date('H:i:s d.m.Y') }}</span>
+                <div class="dropdown">
+                    <button class="btn btn-light bg-transparent border-0 dropdown-toggle" type="button" id="dropdownMenuButton{{ message['messageId'] }}" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="/icons/free-icon-font-settings-sliders-3917103.svg" alt="" class="icon">
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ message['messageId'] }}">
+                        <li><a class="dropdown-item" href="#">Редактировать</a></li>
+                        <li><a class="dropdown-item" href="#">Добавить тэг</a></li>
+                        <li><a class="dropdown-item" href="#">Удалить</a></li>
+                    </ul>
+                </div>
+
+            </div>
+            <p class="message__text">{{ message['text'] }}</p>
+        </li>
+    {% endfor %}
+</ol>
+{{ render(controller(
+    'App\\Controller\\DialogMessageController::new',
+    { 'other-user-id': otherUserId }
+)) }}

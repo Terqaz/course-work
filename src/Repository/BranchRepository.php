@@ -39,6 +39,22 @@ class BranchRepository extends ServiceEntityRepository
         }
     }
 
+    public function getUserBranches(int $userId, int $channelId): array|float|int|string
+    {
+        return $this->getEntityManager()->createQuery("
+            SELECT b.id AS branchId, b.name AS branchName
+            FROM App\Entity\ChannelUser AS cu
+                INNER JOIN cu.branchChannelUsers bcu
+                INNER JOIN cu.channel c
+                INNER JOIN bcu.branch b
+            WHERE cu.userData = :userId AND c.id = :channelId
+            GROUP BY branchId
+            ")
+            ->setParameter('userId', $userId)
+            ->setParameter('channelId', $channelId)
+            ->getArrayResult();
+    }
+
 //    /**
 //     * @return Branch[] Returns an array of Branch objects
 //     */

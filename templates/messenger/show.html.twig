@@ -4,7 +4,7 @@
 
 {% block body %}
     <div class="content container-xl d-inline-flex mx-auto">
-        <div class="navigation-bar container">
+        <div class="navigation-bar container px-0">
             <div class="navigation-bar__header">
                 {#                форма поиска по всем сообщениям#}
             </div>
@@ -16,35 +16,51 @@
                         {% else %}
                             {% set colorClass = '' %}
                         {% endif %}
-                        <li class="message-provider list-group-item d-flex justify-content-between align-items-start {{ colorClass }}"
+                        <li class="message-provider list-group-item d-flex justify-content-between align-items-start {{ colorClass }} px-2"
                                 data-provider-type="{{ provider.type }}"
                                 data-provider-id="{{ provider.id }}"
                         >
-                            <div class="ms-2 me-auto">
-                                <div>{{ provider.name }}</div>
-                            </div>
-                            <span class="badge bg-primary rounded-pill">{{ provider.newMessagesCount }}</span>
+                            {% if provider.type is same as('channel') %}
+                                <div class="ms-2 me-auto d-inline-flex">
+                                    <div>{{ provider.name }}</div>
+                                </div>
+                            {% else %}
+                                <div class="ms-2 me-auto">
+                                    <div>{{ provider.name }}</div>
+                                </div>
+                            {% endif %}
+                            {% if provider.newMessagesCount > 0 %}
+                                <span class="badge bg-primary rounded-pill">{{ provider.newMessagesCount }}</span>
+                            {% endif %}
                         </li>
+                        {% if provider.type is same as('channel') %}
+                            <ol class="list-group">
+                                {% for branch in provider.branches %}
+                                    <li class="message-provider list-group-item d-flex justify-content-between align-items-start ms-2"
+                                        data-provider-type="{{ branch.type }}"
+                                        data-provider-id="{{ branch.id }}"
+                                    >
+                                        <div class="ms-2 me-auto">
+                                            <div>{{ branch.name }}</div>
+                                        </div>
+    {#                                    <span class="badge bg-primary rounded-pill">{{ branch.newMessagesCount }}</span>#}
+                                    </li>
+                                {% endfor %}
+                            </ol>
+                        {% endif %}
                     {% endfor %}
                 </ol>
             </div>
         </div>
         <div class="main d-flex flex-column container">
-            <div class="main__header mb-3">
+            <div class="main__header">
                 <h4 class="main__header__name"></h4>
                 <div class="main__header__search">
                     {#                    форма поиска по сообщениям#}
                 </div>
             </div>
-            <div class="main__list border-light">
-                {#                блок с сообщениями, ajax#}
-            </div>
             <div class="main__content">
-                {#                блок информации о канале#}
-            </div>
-            <div class="main__message-input">
-                {#                блок ввода сообщения#}
-
+                {#                ajax #}
             </div>
         </div>
     </div>

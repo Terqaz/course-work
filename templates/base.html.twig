@@ -14,32 +14,31 @@
         {% endblock %}
     </head>
     <body>
-    <div class=""></div>
-    <header class="d-flex flex-wrap justify-content-center align-items-center p-2 mb-4 border-bottom">
-        <a href="{{ path('app_message_index') }}" class="mb-3 mb-md-0 me-md-auto text-decoration-none text-black">
-            <h3>Мускат</h3>
-        </a>
-        <ul class="nav nav-pills align-items-center">
-            {% if app.user %}
-                <li class="nav-item" style="margin-right: 10px;">
-                    <h4 class="m-md-0"> {{ app.user.firstName }} </h4>
-                </li>
-                <li class="nav-item"><a href="{{ path('app_user_show', {'id': app.user.id}) }}" class="btn btn-primary">
-                        Профиль
-                    </a></li>
-                <li class="nav-item"><a href="{{ path('app_logout') }}" class="btn btn-primary">
-                        Выход
-                    </a></li>
-            {% else %}
-                <li class="nav-item"><a href="{{ path('app_login') }}" class="btn btn-primary">
-                        Вход
-                    </a></li>
-                <li class="nav-item"><a href="{{ path('app_register') }}" class="btn btn-secondary">
-                        Регистрация
-                    </a></li>
-            {% endif %}
-        </ul>
-    </header>
+        <header class="d-flex flex-wrap justify-content-center align-items-center p-2 px-3 mb-4 border-bottom">
+            <a href="{{ path('app_message_index') }}" class="mb-3 mb-md-0 me-md-auto text-decoration-none text-black">
+                <h3>Мускат</h3>
+            </a>
+            <ul class="nav nav-pills align-items-center">
+                {% if app.user %}
+                    <li class="nav-item" style="margin-right: 10px;">
+                        <h4 class="m-md-0"> {{ app.user.firstName }} </h4>
+                    </li>
+                    <li class="nav-item"><a href="{{ path('app_user_show', {'id': app.user.id}) }}" class="btn btn-primary me-2">
+                            Профиль
+                        </a></li>
+                    <li class="nav-item"><a href="{{ path('app_logout') }}" class="btn btn-outline-primary">
+                            Выход
+                        </a></li>
+                {% else %}
+                    <li class="nav-item"><a href="{{ path('app_login') }}" class="btn btn-primary me-2">
+                            Вход
+                        </a></li>
+                    <li class="nav-item"><a href="{{ path('app_register') }}" class="btn btn-outline-primary">
+                            Регистрация
+                        </a></li>
+                {% endif %}
+            </ul>
+        </header>
         <div class="container-fluid">
             {% block body %}{% endblock %}
         </div>

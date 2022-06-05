@@ -11,8 +11,8 @@ class MessageProvider
     // Имя пользователя или название канала или ветки
     private string $name;
     // Для канала - сумма новых сообщений по всем веткам, в которых состоит данный пользователь
-    private int $newMessagesCount;
-    private string $lastMessageDate;
+    private int $newMessagesCount = 0;
+    private array $branches = [];
 
     /**
      * @return int
@@ -85,11 +85,20 @@ class MessageProvider
 
         return $this;
     }
-//    // только для messenger и branch
-//    private ?string $lastMessage;
-//    // Форматируется на стороне сервера
-//    private string $lastMessageDate;
-//    private string $lastMessageAuthor;
 
+    /**
+     * @return array
+     */
+    public function getBranches(): array
+    {
+        return $this->branches;
+    }
 
+    /**
+     * @param array $branches
+     */
+    public function setBranches(array $branches): void
+    {
+        $this->branches = $branches;
+    }
 }
