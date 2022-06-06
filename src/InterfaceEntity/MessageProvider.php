@@ -3,6 +3,7 @@
 namespace App\InterfaceEntity;
 
 // Нужен для отображения в навигационном меню
+
 class MessageProvider
 {
     private int $id;
@@ -13,6 +14,10 @@ class MessageProvider
     // Для канала - сумма новых сообщений по всем веткам, в которых состоит данный пользователь
     private int $newMessagesCount = 0;
     private array $branches = [];
+    // Для канала и ветки
+    private bool $isPrivate;
+    // Для ветки
+    private bool $isInformational;
 
     /**
      * @return int
@@ -100,5 +105,41 @@ class MessageProvider
     public function setBranches(array $branches): void
     {
         $this->branches = $branches;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsPrivate(): bool
+    {
+        return $this->isPrivate;
+    }
+
+    /**
+     * @param bool $isPrivate
+     */
+    public function setIsPrivate(bool $isPrivate): self
+    {
+        $this->isPrivate = $isPrivate;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsInformational(): bool
+    {
+        return $this->isInformational;
+    }
+
+    /**
+     * @param bool $isInformational
+     */
+    public function setIsInformational(bool $isInformational): self
+    {
+        $this->isInformational = $isInformational;
+
+        return $this;
     }
 }

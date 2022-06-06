@@ -7,6 +7,7 @@ use App\Entity\Message;
 use App\Entity\User;
 use App\Form\DialogMessageType;
 use App\Repository\DialogMessageRepository;
+use App\Repository\TagRepository;
 use App\Repository\UserRepository;
 use DateTime;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -28,7 +29,7 @@ class DialogMessageController extends AbstractController
     }
 
     #[Route('/', name: 'app_dialog_message_index', methods: ['GET'])]
-    public function index(Request $request, DialogMessageRepository $dialogMessageRepository): Response
+    public function index(Request $request, DialogMessageRepository $dialogMessageRepository, TagRepository $tagRepository): Response
     {
         /** @var User $user */
         $user = $this->security->getUser();
@@ -40,9 +41,15 @@ class DialogMessageController extends AbstractController
         } else {
             $dialogMessages = $dialogMessageRepository->findByUserIds($user->getId(), $otherUserId);
         }
+        $messagesTags = [];
+        foreach ($dialogMessages as $dialogMessage) {
+            $messagesTags[$dialogMessage['messageId']] = $tagRepository->findForMessage($user->getId(), $dialogMessage['messageId']);
+        }
+
         return $this->render('dialog_message/index.html.twig', [
             'dialog_messages' => $dialogMessages,
             'otherUserId' => $otherUserId,
+            'messagesTags' => $messagesTags,
         ]);
     }
 

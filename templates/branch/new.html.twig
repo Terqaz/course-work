@@ -1,11 +1,10 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Branch{% endblock %}
+{% block title %} Новая ветка | Мускат {% endblock %}
 
 {% block body %}
-    <h1>Create new Branch</h1>
-
-    {{ include('branch/_form.html.twig') }}
-
-    <a href="{{ path('app_branch_index') }}">back to list</a>
+    <div class="container mx-auto" style="max-width:750px;">
+        <h1>Создать ветку в канале {{ channel.name }}</h1>
+        {{ include('branch/_form.html.twig') }}
+    </div>
 {% endblock %}

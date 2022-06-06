@@ -39,6 +39,31 @@ class TagRepository extends ServiceEntityRepository
         }
     }
 
+    public function findChannelPublic(int $channelId): array|float|int|string
+    {
+        return $this->getEntityManager()->createQuery("
+            SELECT t.name as name
+            FROM App\Entity\Channel AS c
+                INNER JOIN c.tags t
+            WHERE t.userData IS NULL AND c.id = :channelId
+            ")
+            ->setParameter('channelId', $channelId)
+            ->getArrayResult();
+    }
+
+    public function findForMessage(int $userId, int $messageId)
+    {
+        return $this->getEntityManager()->createQuery("
+            SELECT t.name AS name
+            FROM App\Entity\Message AS m
+                INNER JOIN m.tags t
+            WHERE t.userData = :userId AND m.id = :messageId
+            ")
+            ->setParameter('messageId', $messageId)
+            ->setParameter('userId', $userId)
+            ->getResult();
+    }
+
 //    /**
 //     * @return Tag[] Returns an array of Tag objects
 //     */

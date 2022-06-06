@@ -86,6 +86,9 @@ class AppFixtures extends Fixture
             foreach ($channelUsers as $channelUser) {
                 $channel->addChannelUser($channelUser);
             }
+            $channel->setIsPrivate($channelData['isPrivate'] ?? false)
+                ->setIsAnybodyAddBranches($channelData['setIsAnybodyAddBranches'] ?? false);
+
             $manager->persist($channel);
             $channels[] = $channel;
 
@@ -240,8 +243,8 @@ class AppFixtures extends Fixture
             ->setChannel($channel)
             ->setCreator($creator)
             ->setName($branchData['name'])
-            ->setIsPrivate((bool)random_int(0, 1))
-            ->setIsInformational($branchData['isInformational'])
+            ->setIsPrivate($branchData['isPrivate'] ?? false)
+            ->setIsInformational($branchData['isInformational'] ?? false)
             ->setCreationDate($this->getNextDate());
         return $branch;
     }
@@ -405,6 +408,8 @@ class AppFixtures extends Fixture
         [
             'name' => 'Канал группы ПИ-19',
             'description' => 'Только в образовательных целях!)',
+            'isPrivate' => true,
+            'isAnybodyAddBranches' => true,
             'branches' => [
                 [
                     'isInformational' => 0,
@@ -440,6 +445,8 @@ class AppFixtures extends Fixture
         ], [
             'name' => 'ФАИ',
             'description' => 'Почему бы и да',
+            'isPrivate' => true,
+            'isAnybodyAddBranches' => true,
             'branches' => [
                 [
                     'isInformational' => 1,
@@ -464,12 +471,23 @@ class AppFixtures extends Fixture
                     'name' => 'Кино',
                     'messages' => [
                         ['text' => 'Сегодня разберем интересный факт об одном актере...', 'tags' => ['Факты', 'Об Актерах']],
+                        ['text' => 'В финальных титрах фильма «Гарри Поттер и кубок огня» есть ремарка: «ни один дракон во время съёмок фильма не пострадал».', 'tags' => ['Факты']],
+                        ['text' => 'Арнольд Шварценеггер, исполняя роль Терминатора, решил вовсе не моргать в фильме, так как считал, что роботы не могут этого делать.'],
                     ],
                 ], [
                     'isInformational' => 1,
                     'name' => 'Технологии',
                     'messages' => [
                         ['text' => 'Топ 10 причин почему нужно брать Android', 'tags' => ['Топ', 'Android']],
+                    ],
+                ], [
+                    'isInformational' => 0,
+                    'name' => 'Обсуждение новых постов',
+                    'isPrivate' => true,
+                    'messages' => [
+                        ['text' => 'У кого какие идеи по поводу новостей?'],
+                        ['text' => 'Было бы неплохо написать про NFT', 'tags' => ['Хорошая идея']],
+                        ['text' => 'Согласен'],
                     ],
                 ],
             ]
@@ -502,6 +520,8 @@ class AppFixtures extends Fixture
             'branches' => []
         ], [
             'name' => 'Веб технологии ПИ-19',
+            'isPrivate' => true,
+            'isAnybodyAddBranches' => true,
             'branches' => []
         ],
     ];

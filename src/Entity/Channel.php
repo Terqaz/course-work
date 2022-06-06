@@ -33,6 +33,12 @@ class Channel
     #[ORM\OneToMany(mappedBy: 'channel', targetEntity: ChannelUser::class)]
     private $channelUsers;
 
+    #[ORM\Column(type: 'boolean')]
+    private $isPrivate;
+
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private $isAnybodyAddBranches = false;
+
 
     public function __construct()
     {
@@ -165,6 +171,30 @@ class Channel
                 $channelUser->setChannel(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getIsPrivate(): ?bool
+    {
+        return $this->isPrivate;
+    }
+
+    public function setIsPrivate(bool $isPrivate): self
+    {
+        $this->isPrivate = $isPrivate;
+
+        return $this;
+    }
+
+    public function getIsAnybodyAddBranches(): ?bool
+    {
+        return $this->isAnybodyAddBranches;
+    }
+
+    public function setIsAnybodyAddBranches(bool $anybodyAddBranches): self
+    {
+        $this->isAnybodyAddBranches = $anybodyAddBranches;
 
         return $this;
     }

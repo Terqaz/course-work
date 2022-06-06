@@ -39,7 +39,7 @@ class ChannelUserRepository extends ServiceEntityRepository
         }
     }
 
-    public function findByUserAndBranch(int $userId, int $branchId): array|float|int|string
+    public function findByUserAndBranch(int $userId, int $branchId): ChannelUser
     {
         return $this->getEntityManager()->createQuery("
             SELECT cu
@@ -51,7 +51,21 @@ class ChannelUserRepository extends ServiceEntityRepository
             ")
             ->setParameter('userId', $userId)
             ->setParameter('branchId', $branchId)
-            ->getResult();
+            ->getResult()[0];
+    }
+
+    public function findByUserAndChannel(int $userId, int $channelId)
+    {
+        return $this->getEntityManager()->createQuery("
+            SELECT cu
+            FROM App\Entity\ChannelUser AS cu
+                INNER JOIN cu.userData u
+                INNER JOIN cu.channel c
+            WHERE u.id = :userId AND c.id = :channelId
+            ")
+            ->setParameter('userId', $userId)
+            ->setParameter('channelId', $channelId)
+            ->getResult()[0];
     }
 
 //    /**
@@ -78,4 +92,5 @@ class ChannelUserRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
 }

@@ -3,11 +3,21 @@
 {% block title %}Edit Branch{% endblock %}
 
 {% block body %}
-    <h1>Edit Branch</h1>
 
-    {{ include('branch/_form.html.twig', {'button_label': 'Update'}) }}
+    <div class="container mx-auto" style="max-width:550px;">
+        <h1>Изменить ветку канала {{ branch.channel.name }}</h1>
 
-    <a href="{{ path('app_branch_index') }}">back to list</a>
-
-    {{ include('branch/_delete_form.html.twig') }}
+        {{ include('branch/_form.html.twig', {'button_label': 'Изменить'}) }}
+        {% if not branch.archivingDate %}
+            <a href="{{ path('app_branch_archive', {'id': branch.id}) }}" class="btn btn-outline-danger mt-2"> Архивировать </a>
+            <p class="form-text"> Внимание! Это действие запретит отправлять сообщения всем пользователям текущей ветки </p>
+        {% else %}
+            <a href="{{ path('app_branch_unarchive', {'id': branch.id}) }}" class="btn btn-outline-danger mt-2"> Разархивировать </a>
+            <p class="form-text"> Внимание! Это действие позволит отправлять сообщения всем пользователям текущей ветки </p>
+        {% endif %}
+        <div class="mt-2">
+            {{ include('branch/_delete_form.html.twig') }}
+            <p class="form-text"> Внимание! Это действие удалит текущую ветку навсегда! </p>
+        </div>
+    </div>
 {% endblock %}

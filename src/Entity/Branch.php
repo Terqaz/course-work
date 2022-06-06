@@ -21,8 +21,8 @@ class Branch
     #[ORM\Column(type: 'boolean')]
     private $isPrivate;
 
-    #[ORM\Column(type: 'boolean')]
-    private $isInformational;
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private $isInformational = false;
 
     #[ORM\Column(type: 'datetime')]
     private $creationDate;
@@ -44,7 +44,7 @@ class Branch
     #[ORM\ManyToMany(targetEntity: Tag::class, mappedBy: 'branch')]
     private $tags;
 
-    #[ORM\OneToMany(mappedBy: 'branch', targetEntity: BranchChannelUser::class)]
+    #[ORM\OneToMany(mappedBy: 'branch', targetEntity: BranchChannelUser::class, orphanRemoval: true)]
     private $branchChannelUsers;
 
     public function __construct()

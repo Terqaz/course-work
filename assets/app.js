@@ -107,10 +107,6 @@ function loadMessages(url) {
             $mainContent.append(data);
             let messages = $mainContent[0];
             messages.scrollTop = messages.scrollHeight;
-
-            const dropdownElementList = document.querySelectorAll('.dropdown-toggle')
-            const dropdownList = [...dropdownElementList].map(dropdownToggleEl => new bootstrap.Dropdown(dropdownToggleEl))
-
         }
     );
 }

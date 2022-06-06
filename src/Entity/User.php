@@ -44,7 +44,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string', length: 16, nullable: true)]
     private $phone;
 
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private $isOnline;
 
     #[ORM\OneToMany(mappedBy: 'userData', targetEntity: ChannelUser::class)]

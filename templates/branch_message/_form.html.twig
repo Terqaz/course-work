@@ -1,4 +1,7 @@
 {{ form_start(form) }}
     {{ form_widget(form) }}
-    <button class="branch-message-send-btn btn btn-primary"> Отправить </button>
+    <div class="d-inline-flex align-items-center" style="width: 100%">
+        <a href="{{ path('app_branch_edit', {'id': branch.id}) }}" class="btn btn-primary"> Изменить ветку </a>
+        <button class="branch-message-send-btn btn btn-primary ms-auto"> Отправить </button>
+    </div>
 {{ form_end(form) }}

@@ -65,7 +65,6 @@ class RegistrationFormType extends AbstractType
             ->add('phone', TelType::class, [
                 'label' => 'Номер телефона',
                 'required' => false,
-                'empty_data' => '+71112223344',
 //                'constraints' => [
 //                    new Regex('/^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$/')
 //                ]

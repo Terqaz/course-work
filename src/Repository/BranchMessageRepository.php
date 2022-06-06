@@ -61,20 +61,6 @@ class BranchMessageRepository extends ServiceEntityRepository
             ->getArrayResult();
     }
 
-    public function getBranchLastSeenDate(int $userId, int $branchId): array|float|int|string
-    {
-        return $this->getEntityManager()->createQuery("
-            SELECT bcu.lastSeenDate
-            FROM App\Entity\ChannelUser AS cu
-                INNER JOIN cu.branchChannelUsers bcu
-                INNER JOIN bcu.branch b
-            WHERE cu.userData = :userId AND b.id = :branchId
-            ")
-            ->setParameter('userId', $userId)
-            ->setParameter('branchId', $branchId)
-            ->getArrayResult();
-    }
-
 //    /**
 //     * @return BranchMessage[] Returns an array of BranchMessage objects
 //     */

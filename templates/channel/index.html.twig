@@ -1,37 +1,34 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Channel index{% endblock %}
+{% block title %}Поиск каналов | Мускат{% endblock %}
 
 {% block body %}
-    <h1>Channel index</h1>
+    <div class="mx-auto" style="width: 800px;">
+        <h1 class="mb-4">Найденные каналы</h1>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Name</th>
-                <th>Description</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
         {% for channel in channels %}
-            <tr>
-                <td>{{ channel.id }}</td>
-                <td>{{ channel.name }}</td>
-                <td>{{ channel.description }}</td>
-                <td>
-                    <a href="{{ path('app_channel_show', {'id': channel.id}) }}">show</a>
-                    <a href="{{ path('app_channel_edit', {'id': channel.id}) }}">edit</a>
-                </td>
-            </tr>
+            {% if not channel.isPrivate %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h2 class="card-title">{{ channel.name }}</h2>
+                        <div>
+                            {% for tag in channelPublicTags[channel.id] %}
+                                <span class="badge bg-light me-1 text-black-50">{{ tag['name'] }}</span>
+                            {% endfor %}
+                        </div>
+                        <h5 class="card-text mb-4">{{ channel.description }}</h5>
+                        {% if userIsInChannel[channel.id] is not defined %}
+                            <a href="{{ path('app_channel_join', {'id': channel.id, 'q': query}) }}" class="btn btn-primary">Вступить в канал</a>
+                        {% else %}
+                            <h5 class="text-black-50">Вы уже состоите в данном канале!</h5>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
         {% else %}
             <tr>
-                <td colspan="4">no records found</td>
+                <td colspan="4">Подходящих каналов не найдено!</td>
             </tr>
         {% endfor %}
-        </tbody>
-    </table>
-
-    <a href="{{ path('app_channel_new') }}">Create new</a>
+    </div>
 {% endblock %}

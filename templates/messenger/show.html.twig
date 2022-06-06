@@ -5,25 +5,31 @@
 {% block body %}
     <div class="content container-xl d-inline-flex mx-auto">
         <div class="navigation-bar container px-0 me-4">
-            <div class="navigation-bar__header">
-                {#                форма поиска по всем сообщениям#}
+            <div class="navigation-bar__header mb-3">
+{#                todo#}
+{#                <form class="d-flex me-auto" role="search" action="{{ path('') }}" method="get">#}
+                <form class="d-flex me-auto" role="search" method="get">
+                    <input class="form-control me-2" type="search" aria-label="Search" name="q">
+                    <button class="btn btn-outline-dark" type="submit">Найти</button>
+                </form>
             </div>
             <div class="navigation-bar__list">
                 <ol class="list-group">
                     {% for provider in messageProviders %}
+                        {% if provider.type is same as('dialog') %}
+                            {% set provider_icon = 'free-icon-font-user-3917559.svg' %}
+                        {% elseif provider.type is same as('channel') %}
+                            {% set provider_icon = 'free-icon-font-apps-3917618.svg' %}
+                        {% endif %}
+
                         <li class="message-provider list-group-item list-group-item-action d-flex justify-content-between align-items-start px-2"
                                 data-provider-type="{{ provider.type }}"
                                 data-provider-id="{{ provider.id }}"
                         >
-                            {% if provider.type is same as('channel') %}
-                                <div class="ms-2 me-auto d-inline-flex">
-                                    <div>{{ provider.name }}</div>
-                                </div>
-                            {% else %}
-                                <div class="ms-2 me-auto">
-                                    <div>{{ provider.name }}</div>
-                                </div>
-                            {% endif %}
+                            <div class="ms-2 me-auto d-inline-flex">
+                                <img src="/icons/{{ provider_icon }}" alt="" class="icon me-2">
+                                <div>{{ provider.name }}</div>
+                            </div>
                             {% if provider.newMessagesCount > 0 %}
                                 <span class="badge bg-primary rounded-pill">{{ provider.newMessagesCount }}</span>
                             {% endif %}
@@ -31,11 +37,18 @@
                         {% if provider.type is same as('channel') %}
                             <ol class="list-group">
                                 {% for branch in provider.branches %}
+                                    {% if branch.isInformational %}
+                                        {% set provider_icon = 'free-icon-font-info-3916699.svg' %}
+                                    {% else %}
+                                        {% set provider_icon = 'free-icon-font-user-3917559.svg' %}
+                                    {% endif %}
+
                                     <li class="message-provider list-group-item list-group-item-action d-flex justify-content-between align-items-start ms-3"
                                         data-provider-type="{{ branch.type }}"
                                         data-provider-id="{{ branch.id }}"
                                     >
-                                        <div class="ms-2 me-auto">
+                                        <div class="ms-2 me-auto d-inline-flex">
+                                            <img src="/icons/{{ provider_icon }}" alt="" class="icon me-2">
                                             <div>{{ branch.name }}</div>
                                         </div>
     {#                                    <span class="badge bg-primary rounded-pill">{{ branch.newMessagesCount }}</span>#}

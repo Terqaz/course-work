@@ -46,20 +46,22 @@ class BranchMessageController extends AbstractController
         /** @var User $user */
         $user = $this->security->getUser();
 
-        $branchId = (int)$request->query->get('branch-id');
-        $branch = $branchRepository->find($branchId);
-
-        $channelUser = $channelUserRepository->findByUserAndBranch($user->getId(), $branchId)[0];
-
         $branchMessage = new BranchMessage();
-        $branchMessage
-            ->setSender($channelUser)
-            ->setBranch($branch);
+        $channelUserId = 0;
 
+        $branchId = (int)$request->query->get('branch-id');
+        if ($branchId) {
+            $branch = $branchRepository->find($branchId);
+            $channelUser = $channelUserRepository->findByUserAndBranch($user->getId(), $branchId);
+            $branchMessage
+                ->setSender($channelUser)
+                ->setBranch($branch);
+            $channelUserId = $channelUser->getId();
+        }
         $form = $this->createForm(BranchMessageType::class, $branchMessage, [
             'action' => $this->generateUrl('app_branch_message_new'),
             'branch-id' => $branchId,
-            'channel-user-id' => $channelUser->getId()
+            'channel-user-id' => $channelUserId
         ]);
         $form->handleRequest($request);
 
@@ -67,8 +69,8 @@ class BranchMessageController extends AbstractController
             $message = (new Message())
                 ->setText($form->get('text')->getData())
                 ->setCreationDate(new DateTime());
-            $branch = $branchRepository->find((int) $form->get('branch-id'));
-            $channelUser = $channelUserRepository->find((int) $form->get('channel-user-id'));
+            $branch = $branchRepository->find((int) $form->get('branch-id')->getData());
+            $channelUser = $channelUserRepository->find((int) $form->get('channel-user-id')->getData());
 
             $branchMessage
                 ->setSender($channelUser)
@@ -81,6 +83,7 @@ class BranchMessageController extends AbstractController
         }
 
         return $this->renderForm('branch_message/_form.html.twig', [
+            'branch' => $branch,
             'branch_message' => $branchMessage,
             'form' => $form,
         ]);

@@ -14,14 +14,18 @@
         {% endblock %}
     </head>
     <body>
-        <header class="d-flex flex-wrap justify-content-center align-items-center p-2 px-3 mb-4 border-bottom">
-            <a class="btn" data-bs-toggle="offcanvas" href="#offcanvasSettings" role="button" aria-controls="offcanvasSettings">
-                <img src="/icons/free-icon-font-settings-sliders-3917103.svg" alt="..." class="icon">
-            </a>
-            <a href="{{ path('app_message_provider_index') }}" class="mb-3 mb-md-0 me-md-auto text-decoration-none text-black">
+        <header class="d-flex flex-wrap align-items-center p-2 px-3 mb-4 border-bottom">
+            <a href="{{ path('app_message_provider_index') }}" class="mb-3 mb-md-0 me-md-3 text-decoration-none text-black">
                 <h3 class="mb-0 fw-bold">Мускат</h3>
             </a>
-            <ul class="nav nav-pills align-items-center">
+            <form class="d-flex" role="search" action="{{ path('app_channel_index') }}" method="get">
+                <input class="form-control me-2" type="search" placeholder="Название канала" aria-label="Search" name="q">
+                <button class="btn btn-outline-dark" type="submit">Найти</button>
+            </form>
+            {% if app.user %}
+                <a href="{{ path('app_channel_new') }}" class="btn btn-outline-primary ms-3"> Создать канал </a>
+            {% endif %}
+            <ul class="nav nav-pills align-items-center ms-auto">
                 {% if app.user %}
                     <li class="nav-item" style="margin-right: 10px;">
                         <h4 class="m-md-0"> {{ app.user.firstName }} </h4>

@@ -1,13 +1,33 @@
 <p>{{ channel.description }}</p>
-<h5>Ветки канала:</h5>
-<ol class="list-group">
-    {% for branch in branches %}
-        <li class="channel-branches list-group-item d-flex justify-content-between align-items-start ms-2"
-            data-provider-id="{{ branch.id }}"
-        >
-            <div>
-                <div>{{ branch.name }}</div>
-            </div>
-        </li>
-    {% endfor %}
-</ol>
+{% if channelUserId == channel.creator.id %}
+    <a href="{{ path('app_channel_edit', {'id': channel.id}) }}"></a>
+{% endif %}
+{% if branches %}
+    <h5>Ветки канала:</h5>
+    <ol class="list-group">
+        {% for branch in branches %}
+            {% if not branch.isPrivate or (branch.isPrivate and channelUserId == channel.creator.id) %}
+                {% if branch.isInformational %}
+                    {% set provider_icon = 'free-icon-font-info-3916699.svg' %}
+                {% else %}
+                    {% set provider_icon = 'free-icon-font-user-3917559.svg' %}
+                {% endif %}
+                <li class="channel-branches list-group-item d-flex align-items-center"
+                    data-provider-id="{{ branch.id }}"
+                >
+                    <img src="/icons/{{ provider_icon }}" alt="" class="icon me-2">
+                    <div>{{ branch.name }}</div>
+                    {% if isUserInBranch[branch.id] is not defined %}
+                        <a href="{{ path('app_branch_join', {'id': branch.id}) }}" class="btn btn-primary ms-auto"> Вступить </a>
+                    {% endif %}
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ol>
+{% else %}
+    <h5> В этом канале еще нет веток </h5>
+{% endif %}
+
+{% if channel.isAnybodyAddBranches or channelUserId == channel.creator.id %}
+    <a href="{{ path('app_branch_new', {'channel-id': channel.id}) }}" class="btn btn-primary mt-3"> Добавить ветку </a>
+{% endif %}

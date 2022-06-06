@@ -42,20 +42,24 @@ class MessengerController extends AbstractController
         foreach ($userChannels as $item) {
             $messageProvider = (new MessageProvider())
                 ->setType('channel')
-                ->setId($item['channelId'])
-                ->setName($item['channelName']);
+                ->setId($item['id'])
+                ->setName($item['name'])
+                ->setIsPrivate($item['isPrivate']);
+
             if (isset($messagesCount['channelId'])) {
                 $messageProvider->setNewMessagesCount($messagesCount['channelId']);
             }
 
-            $branchesData = $branchRepository->getUserBranches($user->getId(), $item['channelId']);
+            $branchesData = $branchRepository->getUserBranches($user->getId(), $item['id']);
 
             $branches = [];
             foreach ($branchesData as $branchData) {
                 $branch = (new MessageProvider())
                     ->setType('branch')
-                    ->setId($branchData['branchId'])
-                    ->setName($branchData['branchName']);
+                    ->setId($branchData['id'])
+                    ->setName($branchData['name'])
+                    ->setIsPrivate($branchData['isPrivate'])
+                    ->setIsInformational($branchData['isInformational']);
 //            if (isset($item['messagesCount'])) {
 //                $messageProvider->setNewMessagesCount($item['messagesCount']);
 //            }
