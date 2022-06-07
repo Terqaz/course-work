@@ -35,6 +35,23 @@ class MessengerController extends AbstractController
         /** @var User $user */
         $user = $this->security->getUser();
 
+        $query = $request->query->get('q');
+        if (strlen($query) > 0) {
+            $users = $dialogMessageRepository->findByQuery($query);
+            $messageProviders = [];
+            foreach ($users as $item) {
+                $messageProvider = (new MessageProvider())
+                    ->setType('dialog')
+                    ->setId($item['userId'])
+                    ->setName($item['userName']);
+                $messageProviders[] = $messageProvider;
+            }
+            return $this->render('messenger/show.html.twig', [
+                'messageProviders' => $messageProviders,
+                'isQuery' => true
+            ]);
+        }
+
         $userChannels = $channelRepository->getUserChannels($user->getId());
         $messagesCount = $channelRepository->getNewMessagesInfo($user->getId());
 
@@ -70,7 +87,7 @@ class MessengerController extends AbstractController
 
             $messageProviders[] = $messageProvider;
         }
-        $userDialogs = $dialogMessageRepository->getUserDialogs($user->getId());
+        $userDialogs = $dialogMessageRepository->findByUserId($user->getId());
         $messagesCount = $dialogMessageRepository->getNewMessagesInfo($user->getId());
         foreach ($userDialogs as $item) {
             $messageProvider = (new MessageProvider())
@@ -85,7 +102,7 @@ class MessengerController extends AbstractController
 
         return $this->render('messenger/show.html.twig', [
             'messageProviders' => $messageProviders,
-
+            'isQuery' => false
         ]);
     }
 }

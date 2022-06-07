@@ -54,7 +54,7 @@ class TagRepository extends ServiceEntityRepository
     public function findForMessage(int $userId, int $messageId)
     {
         return $this->getEntityManager()->createQuery("
-            SELECT t.name AS name
+            SELECT DISTINCT t.name AS name
             FROM App\Entity\Message AS m
                 INNER JOIN m.tags t
             WHERE t.userData = :userId AND m.id = :messageId

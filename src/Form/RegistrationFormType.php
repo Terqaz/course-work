@@ -27,7 +27,6 @@ class RegistrationFormType extends AbstractType
             ->add('lastName', TextType::class, [
                 'label' => 'Фамилия',
                 'required' => true,
-                'empty_data' => 'Ваша фамилия...',
                 'help' => 'До 40 букв',
                 'constraints' => [
                     new Length(max: 40, maxMessage: self::INPUT_CORRECT_VALUE),
@@ -37,7 +36,6 @@ class RegistrationFormType extends AbstractType
             ->add('firstName', TextType::class, [
                 'label' => 'Имя',
                 'required' => true,
-                'empty_data' => 'Ваша имя...',
                 'help' => 'До 40 букв',
                 'constraints' => [
                     new Length(max: 40, maxMessage: self::INPUT_CORRECT_VALUE),
@@ -46,7 +44,6 @@ class RegistrationFormType extends AbstractType
             ->add('middleName', TextType::class, [
                 'label' => 'Отчество',
                 'required' => false,
-                'empty_data' => 'Ваша отчество...',
                 'help' => 'До 40 букв',
                 'constraints' => [
                     new Length(max: 40, maxMessage: self::INPUT_CORRECT_VALUE),
@@ -59,7 +56,6 @@ class RegistrationFormType extends AbstractType
             ])
             ->add('email', EmailType::class, [
                 'required' => true,
-                'empty_data' => 'user@example.com',
                 'help' => 'До 180 символов',
             ])
             ->add('phone', TelType::class, [

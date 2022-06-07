@@ -6,14 +6,19 @@
     <div class="content container-xl d-inline-flex mx-auto">
         <div class="navigation-bar container px-0 me-4">
             <div class="navigation-bar__header mb-3">
-{#                todo#}
-{#                <form class="d-flex me-auto" role="search" action="{{ path('') }}" method="get">#}
-                <form class="d-flex me-auto" role="search" method="get">
-                    <input class="form-control me-2" type="search" aria-label="Search" name="q">
+                <form class="d-flex me-auto" role="search" action="{{ path('app_message_provider_index') }}" method="get">
+                    <input class="form-control me-2" type="search" placeholder="Поиск пользователей" aria-label="Search" name="q">
                     <button class="btn btn-outline-dark" type="submit">Найти</button>
                 </form>
             </div>
             <div class="navigation-bar__list">
+                {% if isQuery %}
+                    {% if messageProviders %}
+                        <h5>Пользователи найдены</h5>
+                    {% else %}
+                        <h5>Пользователи не найдены!</h5>
+                    {% endif %}
+                {% endif %}
                 <ol class="list-group">
                     {% for provider in messageProviders %}
                         {% if provider.type is same as('dialog') %}

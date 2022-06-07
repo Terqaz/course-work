@@ -8,13 +8,18 @@ use App\Entity\User;
 use App\Form\ChannelType;
 use App\InterfaceEntity\MessageProvider;
 use App\Repository\BranchChannelUserRepository;
+use App\Repository\BranchMessageRepository;
 use App\Repository\BranchRepository;
 use App\Repository\ChannelRepository;
 use App\Repository\ChannelUserRepository;
 use App\Repository\TagRepository;
+use DateInterval;
 use DateTime;
+use Knp\Bundle\SnappyBundle\Snappy\Response\PdfResponse;
+use Knp\Snappy\Pdf;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -176,6 +181,48 @@ class ChannelController extends AbstractController
             'channel' => $channel,
             'form' => $form,
         ]);
+    }
+
+    #[Route('/{id}/report', name: 'app_channel_show_report', methods: ['GET', 'POST'])]
+    public function report(Request                 $request,
+                           Channel                 $channel,
+                           BranchRepository        $branchRepository,
+                           BranchMessageRepository $branchMessageRepository,
+                           Pdf                     $knpSnappyPdf)
+    : RedirectResponse|PdfResponse
+    {
+        $interval = $request->query->get('t');
+
+        $branches = $branchRepository->findBy(['channel' => $channel->getId()]);
+        $branchesMessages = [];
+        if ($interval == 'd') {
+            $header = 'Сообщения за день';
+        } else if ($interval == 'm') {
+            $header = 'Сообщения за месяц';
+        } else if ($interval == 'y') {
+            $header = 'Сообщения за год';
+        } else {
+            return $this->redirectToRoute('app_message_provider_index', [], Response::HTTP_SEE_OTHER);
+        }
+        $interval = strtoupper($interval);
+        $header .= " (c " . (new DateTime())->sub(new DateInterval('P1' . $interval))->format('H:i:s d.m.Y')
+            . ' по ' . (new DateTime())->format('H:i:s d.m.Y') . ')';
+        foreach ($branches as $branch) {
+            $branchesMessages[$branch->getId()] =
+                $branchMessageRepository->getByBranchIdAndIntervalName($branch->getId(), $interval);
+        }
+
+        $html = $this->renderView('branch_message/report.html.twig', [
+            'header' => $header,
+            'branches' => $branches,
+            'branchesMessages' => $branchesMessages,
+        ]);
+
+        $knpSnappyPdf->setOption('encoding', 'utf-8');
+        return new PdfResponse(
+            $knpSnappyPdf->getOutputFromHtml($html),
+            'Report.pdf',
+        );
     }
 
     #[Route('/{id}', name: 'app_channel_delete', methods: ['POST'])]

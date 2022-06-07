@@ -32,7 +32,14 @@
     )) }}
 </div>
 {#todo#}
-<form class="d-flex me-auto" role="search" method="get">
-    <input class="form-control me-2" type="search" aria-label="Search" name="q">
+{% if isQuery %}
+    {% if dialog_messages %}
+        <h5>Сообщения найдены</h5>
+    {% else %}
+        <h5>Сообщения не найдены!</h5>
+    {% endif %}
+{% endif %}
+<form class="d-flex me-auto" name="dialog_message_search" role="search" method="get" action="{{ path('app_dialog_message_index', {'other-user-id': otherUserId}) }}">
+    <input class="form-control me-2" type="search" placeholder="Поиск сообщений в диалоге" aria-label="Search" name="q">
     <button class="btn btn-outline-dark" type="submit">Найти</button>
 </form>

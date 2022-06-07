@@ -59,17 +59,28 @@ class DialogMessageRepository extends ServiceEntityRepository
         return $messagesCountByUserId;
     }
 
-    public function getUserDialogs(int $userId): array|float|int|string
+    public function findByUserId(int $userId): array|float|int|string
     {
         return $this->getEntityManager()->createQuery("
-            SELECT s.id AS userId, CONCAT(s.lastName, ' ', s.firstName) AS userName
+            SELECT DISTINCT s.id AS userId, CONCAT(s.lastName, ' ', s.firstName) AS userName
             FROM App\Entity\DialogMessage AS dm
                 JOIN dm.sender s
                 JOIN dm.receiver r
             WHERE r.id = :userId 
-            GROUP BY userId
             ")
             ->setParameter('userId', $userId)
+            ->getArrayResult();
+    }
+
+    public function findByQuery(string $query): array|float|int|string
+    {
+        return $this->getEntityManager()->createQuery("
+            SELECT u.id AS userId, CONCAT(u.lastName, ' ', u.firstName, ' ', u.middleName) AS userName
+            FROM App\Entity\User AS u
+            WHERE CONCAT(u.lastName, ' ', u.firstName) LIKE :query
+            ORDER BY userName
+            ")
+            ->setParameter('query', '%' . $query . '%', 'string')
             ->getArrayResult();
     }
 
@@ -96,5 +107,27 @@ class DialogMessageRepository extends ServiceEntityRepository
             ->getArrayResult();
     }
 
-
+    public function findByUserIdsAndQuery(int $receiverId, int $otherUserId, string $query): string|int|float|array
+    {
+        return $this->getEntityManager()->createQuery("
+            SELECT m.id AS messageId,
+                    s.id AS senderId,
+                    CONCAT(s.lastName, ' ', s.firstName) AS otherUserName, 
+                    m.text AS text, 
+                    m.creationDate AS creationDate, 
+                    dm.isRead AS isRead
+            FROM App\Entity\DialogMessage AS dm
+                JOIN dm.sender s
+                JOIN dm.receiver r
+                JOIN dm.message m
+            WHERE r.id IN (:receiverId, :senderId) 
+                AND s.id IN (:receiverId, :senderId)
+                AND m.text LIKE :query
+            ORDER BY m.creationDate ASC
+            ")
+            ->setParameter('receiverId', $receiverId)
+            ->setParameter('senderId', $otherUserId)
+            ->setParameter('query', '%' . $query . '%', 'string')
+            ->getArrayResult();
+    }
 }

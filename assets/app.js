@@ -16,8 +16,8 @@ import './bootstrap';
 const messageProviders = {DIALOG: 'dialog', BRANCH: 'branch', CHANNEL: 'channel'};
 
 let dataProviderId;
-
 let dataProviderType;
+
 $('.message-provider').click(function (event) {
     dataProviderId = event.target.getAttribute('data-provider-id');
     dataProviderType = event.target.getAttribute('data-provider-type');
@@ -69,6 +69,38 @@ $(document).on('click', '.branch-message-send-btn', function (event) {
     );
 });
 
+$(document).on('submit', 'form[name=dialog_message_search]', function (event) {
+    event.preventDefault();
+
+    let $form = $('form[name=dialog_message_search]')
+    let query = $form[0].q.value;
+    $.ajax({
+        // path('app_dialog_message_index', {'other-user-id': otherUserId})
+        url: $form.attr('action') + '&q=' + query,
+        type: $form.attr('method'),
+        complete: function (response) {
+            setContent(response.responseText);
+            $('form[name=dialog_message_search]')[0].q.value = query;
+        }
+    });
+});
+
+$(document).on('submit', 'form[name=branch_message_search]', function (event) {
+    event.preventDefault();
+
+    let $form = $('form[name=branch_message_search]');
+    let query = $form[0].q.value;
+    $.ajax({
+        // path('app_branch_messages', {'id': branch.id})
+        url: $form.attr('action') + '?q=' + query,
+        type: $form.attr('method'),
+        complete: function (response) {
+            setContent(response.responseText);
+            $('form[name=branch_message_search]')[0].q.value = query;
+        }
+    });
+});
+
 function getDialogMessageUrl(dataProviderId) {
     return '/dialog/messages/?other-user-id=' + dataProviderId;
 }
@@ -102,13 +134,17 @@ function loadMessages(url) {
     $.get(
         url,
         function (data, status) {
-            let $mainContent = $('.main__content');
-            $mainContent.empty();
-            $mainContent.append(data);
-            let messages = $mainContent[0];
-            messages.scrollTop = messages.scrollHeight;
+            setContent(data);
         }
     );
+}
+
+function setContent(data) {
+    let $mainContent = $('.main__content');
+    $mainContent.empty();
+    $mainContent.append(data);
+    let messages = $mainContent[0];
+    messages.scrollTop = messages.scrollHeight;
 }
 
 // $('.dropdown-toggle').click(function (event) {

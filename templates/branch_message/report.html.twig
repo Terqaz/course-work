@@ -1,0 +1,33 @@
+<style>
+    table, th, td {
+        border: 1px solid;
+    }
+    table {
+        width: 100%;
+    }
+    table {
+        border-collapse: collapse;
+    }
+</style>
+<h2>{{ header }}</h2>
+{% for branch in branches %}
+    <h3>{{ branch.name }}</h3>
+    {% if branchesMessages[branch.id] %}
+        <table>
+            <tr>
+                <th>Автор</th>
+                <th>Текст</th>
+                <th>Дата</th>
+            </tr>
+            {% for branchMessages in branchesMessages[branch.id] %}
+                <tr>
+                    <td>{{ branchMessages['userName'] }}</td>
+                    <td>{{ branchMessages['text'] }}</td>
+                    <td>{{ branchMessages['creationDate']|date('H:i:s d.m.Y') }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <h4>Сообщений нет!</h4>
+    {% endif %}
+{% endfor %}

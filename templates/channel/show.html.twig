@@ -1,6 +1,11 @@
 <p>{{ channel.description }}</p>
 {% if channelUserId == channel.creator.id %}
-    <a href="{{ path('app_channel_edit', {'id': channel.id}) }}"></a>
+    <a href="{{ path('app_channel_edit', {'id': channel.id}) }}" class="btn btn-outline-primary mb-4"> Изменить </a>
+    <div class="d-flex flex-column" style="width: 350px">
+        <a href="{{ path('app_channel_show_report', {'id': channel.id, 't': 'd'}) }}" class="btn btn-outline-secondary mb-2"> Выгрузить сообщения по веткам за день </a>
+        <a href="{{ path('app_channel_show_report', {'id': channel.id, 't': 'm'}) }}" class="btn btn-outline-secondary mb-2"> Выгрузить сообщения по веткам за месяц </a>
+        <a href="{{ path('app_channel_show_report', {'id': channel.id, 't': 'y'}) }}" class="btn btn-outline-secondary mb-4"> Выгрузить сообщения по веткам за год </a>
+    </div>
 {% endif %}
 {% if branches %}
     <h5>Ветки канала:</h5>
@@ -18,7 +23,9 @@
                     <img src="/icons/{{ provider_icon }}" alt="" class="icon me-2">
                     <div>{{ branch.name }}</div>
                     {% if isUserInBranch[branch.id] is not defined %}
-                        <a href="{{ path('app_branch_join', {'id': branch.id}) }}" class="btn btn-primary ms-auto"> Вступить </a>
+                        <a href="{{ path('app_branch_join', {'id': branch.id}) }}" class="btn btn-outline-primary ms-auto"> Вступить </a>
+                    {% else %}
+                        <a href="{{ path('app_branch_leave', {'id': branch.id}) }}" class="btn btn-outline-danger ms-auto"> Выйти </a>
                     {% endif %}
                 </li>
             {% endif %}

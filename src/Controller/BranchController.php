@@ -125,7 +125,8 @@ class BranchController extends AbstractController
     }
 
     #[Route('/{id}/messages', name: 'app_branch_messages', methods: ['GET'])]
-    public function getMessages(Branch                      $branch,
+    public function getMessages(Request                     $request,
+                                Branch                      $branch,
                                 BranchMessageRepository     $branchMessageRepository,
                                 ChannelUserRepository       $channelUserRepository,
                                 BranchChannelUserRepository $branchChannelUserRepository)
@@ -134,7 +135,13 @@ class BranchController extends AbstractController
         /** @var User $user */
         $user = $this->security->getUser();
 
-        $messages = $branchMessageRepository->getMessages($user->getId(), $branch->getId());
+        $query = $request->query->get('q');
+
+        if (!$query) {
+            $messages = $branchMessageRepository->getByBranchId($branch->getId());
+        } else {
+            $messages = $branchMessageRepository->getByBranchIdAndQuery($user->getId(), $branch->getId(), $query);
+        }
         $channelUser = $channelUserRepository->findByUserAndBranch($user->getId(), $branch->getId());
         $branchChannelUser = $branchChannelUserRepository->findOneBy([
             'channelUser' => $channelUser->getId(),
@@ -145,7 +152,8 @@ class BranchController extends AbstractController
             'messages' => $messages,
             'channelUser' => $channelUser,
             'branch' => $branch,
-            'branchChannelUser' => $branchChannelUser
+            'branchChannelUser' => $branchChannelUser,
+            'isQuery' => strlen($query) > 0
         ]);
     }
 
@@ -198,6 +206,21 @@ class BranchController extends AbstractController
             ->setLastSeenDate(new DateTime());
 
         $branchChannelUserRepository->add($branchChannelUser, true);
+
+        return $this->redirectToRoute('app_message_provider_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{id}/leave', name: 'app_branch_leave', methods: ['GET'])]
+    public function leave(Branch $branch, BranchChannelUserRepository $branchChannelUserRepository, ChannelUserRepository $channelUserRepository): Response
+    {
+        $branchChannelUser = $branchChannelUserRepository->findOneBy([
+            'branch' => $branch->getId(),
+            'channelUser' => $channelUserRepository->findByUserAndChannel(
+                $this->security->getUser()->getId(),
+                $branch->getChannel()->getId()
+            )->getId(),
+        ]);
+        $branchChannelUserRepository->remove($branchChannelUser, true);
 
         return $this->redirectToRoute('app_message_provider_index', [], Response::HTTP_SEE_OTHER);
     }

@@ -35,11 +35,16 @@ class DialogMessageController extends AbstractController
         $user = $this->security->getUser();
 
         $otherUserId = (int) $request->query->get('other-user-id');
+        $query = $request->query->get('q');
 
         if ($otherUserId === 0) {
             $dialogMessages = [];
         } else {
-            $dialogMessages = $dialogMessageRepository->findByUserIds($user->getId(), $otherUserId);
+            if (!$query) {
+                $dialogMessages = $dialogMessageRepository->findByUserIds($user->getId(), $otherUserId);
+            } else {
+                $dialogMessages = $dialogMessageRepository->findByUserIdsAndQuery($user->getId(), $otherUserId, $query);
+            }
         }
         $messagesTags = [];
         foreach ($dialogMessages as $dialogMessage) {
@@ -50,6 +55,7 @@ class DialogMessageController extends AbstractController
             'dialog_messages' => $dialogMessages,
             'otherUserId' => $otherUserId,
             'messagesTags' => $messagesTags,
+            'isQuery' => strlen($query) > 0
         ]);
     }
 
